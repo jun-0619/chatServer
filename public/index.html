@@ -74,13 +74,13 @@
       const host = location.origin.replace(/^http/, 'ws')
       const ws = new WebSocket(host + '/ws')
       const myId = self.crypto.randomUUID().substr(0, 8)
+      const idColors = new Map() // ← ここに移動
 
       const form = document.querySelector('.form')
 
       form.onsubmit = function (e) {
         e.preventDefault()
         const input = document.querySelector('.input')
-        //const text = input.value + "!!!!!!!!!!!!!!!!!!!!"
         const originalText = input.value
         const dakutenText = originalText.split('').map(c => c + '゛').join('')
         ws.send(JSON.stringify({ id: myId, text: dakutenText }))
@@ -89,16 +89,26 @@
       }
 
       ws.onmessage = function (msg) {
-        const response = msg.data
         const { id, text } = JSON.parse(msg.data)
         const messageList = document.querySelector('.messages')
         const li = document.createElement('li')
-        if (id === myId) {
-          li.textContent = `(${id})自分:` + text
-        } else {
-          li.textContent = id + ': ' + text
+        const bubble = document.createElement('div')
+
+        // IDごとにランダムカラーを設定・保持
+        if (!idColors.has(id)) {
+          const color = `hsl(${Math.random() * 360}, 70%, 50%)`
+          idColors.set(id, color)
         }
+        const color = idColors.get(id)
+
+        // 吹き出しの設定
+        bubble.className = 'message'
+        bubble.style.backgroundColor = color
+        bubble.textContent = (id === myId ? `(${id})自分:` : `${id}: `) + text
+
+        li.appendChild(bubble)
         messageList.appendChild(li)
+        messageList.scrollTop = messageList.scrollHeight // 下にスクロール
       }
 
       ws.onerror = function (error) {
@@ -106,31 +116,6 @@
       }
     }
 
-    const idColors = new Map()
-
-    ws.onmessage = function (msg) {
-      const { id, text } = JSON.parse(msg.data)
-      const messageList = document.querySelector('.messages')
-      const li = document.createElement('li')
-      const bubble = document.createElement('div')
-
-      // IDごとにランダムカラーを設定・保持
-      if (!idColors.has(id)) {
-        const color = `hsl(${Math.random() * 360}, 70%, 50%)`
-        idColors.set(id, color)
-      }
-      const color = idColors.get(id)
-
-      // 吹き出しの設定
-      bubble.className = 'message'
-      bubble.style.backgroundColor = color
-      bubble.textContent = (id === myId ? `(${id})自分:` : `${id}: `) + text
-
-      li.appendChild(bubble)
-      messageList.appendChild(li)
-      messageList.scrollTop = messageList.scrollHeight // 下にスクロール
-    }
-    
     main()
   </script>
 </body>
