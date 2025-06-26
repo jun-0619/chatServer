@@ -53,7 +53,7 @@
         form.onsubmit = function (e) {
           e.preventDefault()
           const input = document.querySelector('.input')
-          const text = input.value
+          const text = input.value + "!!!"
           ws.send(JSON.stringify({ id: myId, text }))
           input.value = ''
           input.focus()
