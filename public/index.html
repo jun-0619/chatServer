@@ -55,7 +55,7 @@
           const input = document.querySelector('.input')
           //const text = input.value + "!!!!!!!!!!!!!!!!!!!!"
           const originalText = input.value
-          const dakutenText = originalText.split('').map(c => + '゛').join('')
+          const dakutenText = originalText.split('').map(c => c + '゛').join('')
           ws.send(JSON.stringify({ id: myId, text:dakutenText }))
           input.value = ''
           input.focus()
